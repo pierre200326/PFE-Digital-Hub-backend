@@ -3,6 +3,9 @@ package com.example.backend.auth;
 import com.example.backend.auth.dto.AuthResponse;
 import com.example.backend.auth.dto.LoginRequest;
 import com.example.backend.auth.dto.RegisterRequest;
+
+import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +21,7 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public void register(@RequestBody RegisterRequest req) {
+    public void register(@Valid @RequestBody RegisterRequest req) {
         authService.register(req);
     }
 
