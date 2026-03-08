@@ -2,6 +2,7 @@ package com.example.backend.config;
 
 import com.example.backend.auth.JwtAuthFilter;
 import com.example.backend.security.LoginRateLimitFilter;
+import com.example.backend.security.GlobalRateLimitFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -22,9 +23,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(
-            HttpSecurity http,
-            JwtAuthFilter jwtAuthFilter,
-            LoginRateLimitFilter loginRateLimitFilter
+        HttpSecurity http,
+        JwtAuthFilter jwtAuthFilter,
+        LoginRateLimitFilter loginRateLimitFilter,
+        GlobalRateLimitFilter globalRateLimitFilter
     ) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
@@ -33,6 +35,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
                         .anyRequest().authenticated())
+                .addFilterBefore(globalRateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(loginRateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
