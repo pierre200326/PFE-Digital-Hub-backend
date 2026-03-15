@@ -3,6 +3,7 @@ package com.example.backend.auth;
 import com.example.backend.auth.dto.AuthResponse;
 import com.example.backend.auth.dto.LoginRequest;
 import com.example.backend.auth.dto.RegisterRequest;
+import com.example.backend.user.Role;
 import com.example.backend.user.User;
 import com.example.backend.user.UserRepository;
 import org.springframework.http.HttpStatus;
@@ -17,17 +18,14 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
-    public AuthService(UserRepository userRepository,
-            PasswordEncoder passwordEncoder,
-            JwtService jwtService) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
     }
 
     public void register(RegisterRequest req) {
-        if (req.phone() == null || req.phone().isBlank() ||
-                req.password() == null || req.password().isBlank()) {
+        if (req.phone() == null || req.phone().isBlank() || req.password() == null || req.password().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing phone or password");
         }
 
@@ -40,13 +38,13 @@ public class AuthService {
         user.setLastName(req.lastName() == null ? "" : req.lastName().trim());
         user.setPhone(req.phone().trim());
         user.setPasswordHash(passwordEncoder.encode(req.password()));
+        user.setRole(Role.USER);
 
         userRepository.save(user);
     }
 
     public AuthResponse login(LoginRequest req) {
-        if (req.phone() == null || req.phone().isBlank() ||
-                req.password() == null || req.password().isBlank()) {
+        if (req.phone() == null || req.phone().isBlank() || req.password() == null || req.password().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing phone or password");
         }
 
@@ -57,7 +55,7 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Bad credentials");
         }
 
-        String token = jwtService.generateToken(user.getPhone());
+        String token = jwtService.generateToken(user.getPhone(), user.getRole().name());
         return new AuthResponse(token);
     }
 }
