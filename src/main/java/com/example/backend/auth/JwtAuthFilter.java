@@ -27,24 +27,31 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
-        String auth = request.getHeader("Authorization");
+        String authHeader = request.getHeader("Authorization");
 
-        if (auth != null && auth.startsWith("Bearer ")) {
-            String token = auth.substring(7);
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
 
             try {
                 String phone = jwtService.getSubject(token);
                 String role = jwtService.getRole(token);
 
-                var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
+                if (phone != null && role != null
+                        && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                var authentication = new UsernamePasswordAuthenticationToken(
-                        phone,
-                        null,
-                        authorities);
+                    var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                    var authentication = new UsernamePasswordAuthenticationToken(
+                            phone,
+                            null,
+                            authorities);
+
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             } catch (Exception ignored) {
+                // Si le token est invalide, on laisse passer.
+                // Les routes publiques fonctionneront, les routes protégées seront refusées par
+                // Spring.
             }
         }
 

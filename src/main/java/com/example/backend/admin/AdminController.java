@@ -2,6 +2,9 @@ package com.example.backend.admin;
 
 import com.example.backend.admin.dto.AdminUserResponse;
 import com.example.backend.admin.dto.UpdateUserRequest;
+import com.example.backend.forum.Post;
+import com.example.backend.forum.PostRepository;
+import com.example.backend.forum.dto.PostResponse;
 import com.example.backend.user.User;
 import com.example.backend.user.UserRepository;
 import org.springframework.http.HttpStatus;
@@ -15,9 +18,11 @@ import java.util.List;
 public class AdminController {
 
     private final UserRepository userRepository;
+    private final PostRepository postRepository;
 
-    public AdminController(UserRepository userRepository) {
+    public AdminController(UserRepository userRepository, PostRepository postRepository) {
         this.userRepository = userRepository;
+        this.postRepository = postRepository;
     }
 
     @GetMapping("/dashboard")
@@ -70,5 +75,21 @@ public class AdminController {
         }
 
         userRepository.deleteById(id);
+    }
+
+    @GetMapping("/forum")
+    public List<PostResponse> getAllForumPosts() {
+        return postRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .map(PostResponse::from)
+                .toList();
+    }
+
+    @DeleteMapping("/forum/{id}")
+    public void deleteForumPost(@PathVariable Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Message introuvable"));
+
+        postRepository.delete(post);
     }
 }
