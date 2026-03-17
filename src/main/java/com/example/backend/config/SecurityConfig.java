@@ -1,6 +1,9 @@
 package com.example.backend.config;
 
 import com.example.backend.auth.JwtAuthFilter;
+import com.example.backend.security.CustomAccessDeniedHandler;
+import com.example.backend.security.CustomAuthenticationEntryPoint;
+import com.example.backend.security.LoginRateLimitFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -24,12 +27,18 @@ public class SecurityConfig {
         @Bean
         public SecurityFilterChain securityFilterChain(
                         HttpSecurity http,
-                        JwtAuthFilter jwtAuthFilter) throws Exception {
+                        JwtAuthFilter jwtAuthFilter,
+                        LoginRateLimitFilter loginRateLimitFilter,
+                        CustomAuthenticationEntryPoint customAuthenticationEntryPoint,
+                        CustomAccessDeniedHandler customAccessDeniedHandler) throws Exception {
 
                 return http
                                 .csrf(csrf -> csrf.disable())
                                 .cors(Customizer.withDefaults())
                                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .exceptionHandling(ex -> ex
+                                                .authenticationEntryPoint(customAuthenticationEntryPoint)
+                                                .accessDeniedHandler(customAccessDeniedHandler))
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/auth/**").permitAll()
 
@@ -42,6 +51,7 @@ public class SecurityConfig {
                                                 .requestMatchers("/admin/forum", "/admin/forum/**").hasRole("ADMIN")
 
                                                 .anyRequest().authenticated())
+                                .addFilterBefore(loginRateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                                 .build();
         }
