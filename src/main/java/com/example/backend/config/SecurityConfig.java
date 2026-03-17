@@ -1,7 +1,9 @@
 package com.example.backend.config;
 
-import java.util.List;
-
+import com.example.backend.auth.JwtAuthFilter;
+import com.example.backend.security.CustomAccessDeniedHandler;
+import com.example.backend.security.CustomAuthenticationEntryPoint;
+import com.example.backend.security.LoginRateLimitFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -16,8 +18,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.example.backend.auth.JwtAuthFilter;
-import com.example.backend.security.LoginRateLimitFilter;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -27,14 +28,27 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             JwtAuthFilter jwtAuthFilter,
-            LoginRateLimitFilter loginRateLimitFilter
-    ) throws Exception {
+            LoginRateLimitFilter loginRateLimitFilter,
+            CustomAuthenticationEntryPoint customAuthenticationEntryPoint,
+            CustomAccessDeniedHandler customAccessDeniedHandler) throws Exception {
+
         return http
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
+
+                        .requestMatchers("/forum", "/forum/**").authenticated()
+
+                        .requestMatchers("/admin/dashboard").hasRole("ADMIN")
+                        .requestMatchers("/admin/users", "/admin/users/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/forum", "/admin/forum/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/audit-logs", "/admin/audit-logs/**").hasRole("ADMIN")
+
                         .anyRequest().authenticated())
                 .addFilterBefore(loginRateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
@@ -49,10 +63,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
-        cfg.setAllowedOrigins(List.of(
-    "http://localhost:4200", // local dev
-    "https://pfe-digital-hub-frontend.vercel.app" // prod
-));
+        cfg.setAllowedOrigins(List.of("https://pfe-digital-hub-frontend.vercel.app"));
         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         cfg.setAllowedHeaders(List.of("*"));
         cfg.setAllowCredentials(true);

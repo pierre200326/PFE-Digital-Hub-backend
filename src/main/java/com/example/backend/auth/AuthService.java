@@ -1,9 +1,9 @@
 package com.example.backend.auth;
 
+import com.example.backend.audit.AuditLogService;
 import com.example.backend.auth.dto.AuthResponse;
 import com.example.backend.auth.dto.LoginRequest;
 import com.example.backend.auth.dto.RegisterRequest;
-import com.example.backend.security.AuditLogService;
 import com.example.backend.security.RequestUtils;
 import com.example.backend.user.Role;
 import com.example.backend.user.User;

@@ -1,8 +1,8 @@
 package com.example.backend.forum;
 
+import com.example.backend.audit.AuditLogService;
 import com.example.backend.forum.dto.CreatePostRequest;
 import com.example.backend.forum.dto.PostResponse;
-import com.example.backend.security.AuditLogService;
 import com.example.backend.security.RequestUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -44,8 +44,8 @@ public class PostController {
 
     @PostMapping
     public PostResponse createPost(@Valid @RequestBody CreatePostRequest req,
-            Authentication authentication,
-            HttpServletRequest request) {
+                                   Authentication authentication,
+                                   HttpServletRequest request) {
 
         if (authentication == null
                 || !authentication.isAuthenticated()

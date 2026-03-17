@@ -2,10 +2,12 @@ package com.example.backend.admin;
 
 import com.example.backend.admin.dto.AdminUserResponse;
 import com.example.backend.admin.dto.UpdateUserRequest;
+import com.example.backend.audit.AuditLogRepository;
+import com.example.backend.audit.AuditLogResponse;
+import com.example.backend.audit.AuditLogService;
 import com.example.backend.forum.Post;
 import com.example.backend.forum.PostRepository;
 import com.example.backend.forum.dto.PostResponse;
-import com.example.backend.security.AuditLogService;
 import com.example.backend.security.RequestUtils;
 import com.example.backend.user.User;
 import com.example.backend.user.UserRepository;
@@ -23,19 +25,30 @@ public class AdminController {
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final AuditLogRepository auditLogRepository;
     private final AuditLogService auditLogService;
 
     public AdminController(UserRepository userRepository,
                            PostRepository postRepository,
+                           AuditLogRepository auditLogRepository,
                            AuditLogService auditLogService) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
+        this.auditLogRepository = auditLogRepository;
         this.auditLogService = auditLogService;
     }
 
     @GetMapping("/dashboard")
     public String dashboard() {
         return "Bienvenue admin";
+    }
+
+    @GetMapping("/audit-logs")
+    public List<AuditLogResponse> getAuditLogs() {
+        return auditLogRepository.findAllByOrderByTimestampDesc()
+                .stream()
+                .map(AuditLogResponse::from)
+                .toList();
     }
 
     @GetMapping("/users")
