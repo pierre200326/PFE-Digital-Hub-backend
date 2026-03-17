@@ -1,9 +1,7 @@
 package com.example.backend.config;
 
-import com.example.backend.auth.JwtAuthFilter;
-import com.example.backend.security.CustomAccessDeniedHandler;
-import com.example.backend.security.CustomAuthenticationEntryPoint;
-import com.example.backend.security.LoginRateLimitFilter;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
