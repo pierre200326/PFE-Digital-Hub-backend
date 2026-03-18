@@ -41,6 +41,10 @@ public class SecurityConfig {
                         .accessDeniedHandler(customAccessDeniedHandler))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/favicon.ico").permitAll()
+
+                        .requestMatchers("/shop/products", "/shop/products/**").permitAll()
+                        .requestMatchers("/shop/orders", "/shop/orders/**").authenticated()
 
                         .requestMatchers("/forum", "/forum/**").authenticated()
 
@@ -48,6 +52,8 @@ public class SecurityConfig {
                         .requestMatchers("/admin/users", "/admin/users/**").hasRole("ADMIN")
                         .requestMatchers("/admin/forum", "/admin/forum/**").hasRole("ADMIN")
                         .requestMatchers("/admin/audit-logs", "/admin/audit-logs/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/notifications", "/admin/notifications/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/products", "/admin/products/**").hasRole("ADMIN")
 
                         .anyRequest().authenticated())
                 .addFilterBefore(loginRateLimitFilter, UsernamePasswordAuthenticationFilter.class)
@@ -63,7 +69,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
-        cfg.setAllowedOrigins(List.of("https://pfe-digital-hub-frontend.vercel.app"));
+        cfg.setAllowedOrigins(List.of(
+                "http://localhost:4200",
+                "https://pfe-digital-hub-frontend.vercel.app"));
         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         cfg.setAllowedHeaders(List.of("*"));
         cfg.setAllowCredentials(true);

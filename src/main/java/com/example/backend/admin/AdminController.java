@@ -29,9 +29,9 @@ public class AdminController {
     private final AuditLogService auditLogService;
 
     public AdminController(UserRepository userRepository,
-                           PostRepository postRepository,
-                           AuditLogRepository auditLogRepository,
-                           AuditLogService auditLogService) {
+            PostRepository postRepository,
+            AuditLogRepository auditLogRepository,
+            AuditLogService auditLogService) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
         this.auditLogRepository = auditLogRepository;
@@ -61,8 +61,8 @@ public class AdminController {
 
     @GetMapping("/users/{id}")
     public AdminUserResponse getUserById(@PathVariable Long id,
-                                         Authentication authentication,
-                                         HttpServletRequest request) {
+            Authentication authentication,
+            HttpServletRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
 
@@ -74,17 +74,16 @@ public class AdminController {
                 request.getRequestURI(),
                 RequestUtils.getUserAgent(request),
                 "SUCCESS",
-                "Fetched user id=" + id
-        );
+                "Fetched user id=" + id);
 
         return AdminUserResponse.from(user);
     }
 
     @PutMapping("/users/{id}")
     public AdminUserResponse updateUser(@PathVariable Long id,
-                                        @RequestBody UpdateUserRequest req,
-                                        Authentication authentication,
-                                        HttpServletRequest request) {
+            @RequestBody UpdateUserRequest req,
+            Authentication authentication,
+            HttpServletRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
 
@@ -111,16 +110,15 @@ public class AdminController {
                 request.getRequestURI(),
                 RequestUtils.getUserAgent(request),
                 "SUCCESS",
-                "Updated user id=" + id
-        );
+                "Updated user id=" + id);
 
         return AdminUserResponse.from(user);
     }
 
     @DeleteMapping("/users/{id}")
     public void deleteUser(@PathVariable Long id,
-                           Authentication authentication,
-                           HttpServletRequest request) {
+            Authentication authentication,
+            HttpServletRequest request) {
         if (!userRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable");
         }
@@ -135,8 +133,7 @@ public class AdminController {
                 request.getRequestURI(),
                 RequestUtils.getUserAgent(request),
                 "SUCCESS",
-                "Deleted user id=" + id
-        );
+                "Deleted user id=" + id);
     }
 
     @GetMapping("/forum")
@@ -149,8 +146,8 @@ public class AdminController {
 
     @DeleteMapping("/forum/{id}")
     public void deleteForumPost(@PathVariable Long id,
-                                Authentication authentication,
-                                HttpServletRequest request) {
+            Authentication authentication,
+            HttpServletRequest request) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Message introuvable"));
 
@@ -164,7 +161,6 @@ public class AdminController {
                 request.getRequestURI(),
                 RequestUtils.getUserAgent(request),
                 "SUCCESS",
-                "Deleted forum post id=" + id
-        );
+                "Deleted forum post id=" + id);
     }
 }
