@@ -15,7 +15,10 @@ public record RegisterRequest(
         String lastName,
 
         @NotBlank(message = "Le numéro de téléphone est requis")
-        @Pattern(regexp = "^[0-9]{10}$", message = "Le numéro de téléphone doit contenir 10 chiffres")
+        @Pattern(
+            regexp = "^\\+?[0-9]{8,20}$",
+            message = "Le numéro de téléphone est invalide"
+        )
         String phone,
 
         @NotBlank(message = "Le mot de passe est requis")
